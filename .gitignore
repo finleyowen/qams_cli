@@ -1,0 +1,3 @@
+target/
+design/uml/*.png
+test_artifacts/*.html

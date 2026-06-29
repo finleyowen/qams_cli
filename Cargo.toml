@@ -1,0 +1,8 @@
+[package]
+name = "qams_cli"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = "4.6.1"
+qams_core = { version = "0.1.0", path = "../qams_core" }
