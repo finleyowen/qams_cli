@@ -108,6 +108,7 @@ dependencies = [
 [[package]]
 name = "qams_core"
 version = "0.1.0"
+source = "git+https://github.com/finleyowen/qams_core#386deef8c536e14a70f8c804959cc5a3eec85ca4"
 
 [[package]]
 name = "strsim"
