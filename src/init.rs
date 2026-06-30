@@ -1,4 +1,4 @@
-use std::{env, fs, path::{Path, PathBuf}, process::Command};
+use std::{env, fs, path::{Path}, process::Command};
 use qams_core::Scorecard;
 
 /// Runs `init` (and `update`, which is identical) in the current directory.
