@@ -1,5 +1,6 @@
 use std::{env, fs, path::{Path, PathBuf}, process::Command};
 use qams_core::Scorecard;
+use crate::scorecard::{parse_scorecard_csv, render_scorecard_html};
 
 const DEFAULT_PATH_TO_REVIEWS: &str = "./reviews";
 const DEFAULT_PATH_TO_REPORTS: &str = "./reports";
@@ -114,7 +115,7 @@ fn current_dir() -> Result<PathBuf, String> {
 fn read_scorecard(path: &Path) -> Result<Scorecard, String> {
     let csv = fs::read_to_string(path)
         .map_err(|e| format!("Cannot read '{}': {e}", path.display()))?;
-    Scorecard::from_csv_string(&csv)
+    parse_scorecard_csv(&csv)
 }
 
 fn read_agents(path: &Path) -> Result<Vec<Vec<String>>, String> {
@@ -159,7 +160,7 @@ fn write_scorecard_html(
         .collect();
     let agent_slices: Vec<&[&str]> = agent_row_refs.iter().map(|r| r.as_slice()).collect();
 
-    let mut html = scorecard.to_html(&agent_slices);
+    let mut html = render_scorecard_html(scorecard, &agent_slices);
 
     if !metadata_fields.is_empty() {
         let extra_inputs: String = metadata_fields
