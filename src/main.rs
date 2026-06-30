@@ -13,25 +13,43 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Set up a new QAMS instance in the current directory.
-    Init(InitUpdateArgs),
+    Init(InitArgs),
     /// Update the scorecard, agents, or review metadata for an existing instance.
-    Update(InitUpdateArgs),
+    Update(UpdateArgs),
     /// Generate a report from reviews within a date range.
     Report(ReportArgs),
 }
 
-/// Arguments shared by `init` and `update`.
+/// Arguments for `init`. Scorecard/agents paths default to the conventional
+/// filenames in the current directory if omitted.
 #[derive(clap::Args)]
-struct InitUpdateArgs {
+struct InitArgs {
     /// Path to the scorecard CSV.
-    #[arg(short = 's', long)]
+    #[arg(short = 's', long, default_value = "./scorecard.csv")]
     path_to_scorecard: PathBuf,
 
     /// Path to the agents CSV (first column = unique identifier).
-    #[arg(short = 'a', long)]
+    #[arg(short = 'a', long, default_value = "./agents.csv")]
     path_to_agents: PathBuf,
 
     /// Path to the review metadata CSV (optional; one field name per row).
+    #[arg(short = 'r', long)]
+    path_to_metadata: Option<PathBuf>,
+}
+
+/// Arguments for `update`. All fields are optional: an omitted field leaves
+/// the corresponding part of the QAMS instance unchanged.
+#[derive(clap::Args)]
+struct UpdateArgs {
+    /// Path to the scorecard CSV (omit to leave the scorecard unchanged).
+    #[arg(short = 's', long)]
+    path_to_scorecard: Option<PathBuf>,
+
+    /// Path to the agents CSV (omit to leave the agent list unchanged).
+    #[arg(short = 'a', long)]
+    path_to_agents: Option<PathBuf>,
+
+    /// Path to the review metadata CSV (omit to leave review metadata unchanged).
     #[arg(short = 'r', long)]
     path_to_metadata: Option<PathBuf>,
 }
@@ -54,9 +72,14 @@ struct ReportArgs {
 fn main() {
     let cli = Cli::parse();
     let result: Result<(), String> = match cli.command {
-        Commands::Init(args) | Commands::Update(args) => init::run(
+        Commands::Init(args) => init::run_init(
             &args.path_to_scorecard,
             &args.path_to_agents,
+            args.path_to_metadata.as_deref(),
+        ),
+        Commands::Update(args) => init::run_update(
+            args.path_to_scorecard.as_deref(),
+            args.path_to_agents.as_deref(),
             args.path_to_metadata.as_deref(),
         ),
         Commands::Report(_) => {
